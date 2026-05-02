@@ -113,6 +113,22 @@ class App:
         if 'r' in self.keys:
             c.reset()
 
+        # POV z pozycji swiatla
+        if 'l' in self.keys:
+            self._set_camera_to_light()
+            self.keys.discard('l')
+
+    def _set_camera_to_light(self):
+        """Ustaw kamere na pozycji swiatla, patrzac w strone srodka sceny."""
+        lp = self.light.position
+        self.cam.x, self.cam.y, self.cam.z = lp[0], lp[1], lp[2]
+        # Kierunek do srodka sceny (0,0,0)
+        dx, dy, dz = -lp[0], -lp[1], -lp[2]
+        dist_xz = math.sqrt(dx * dx + dz * dz)
+        self.cam.yaw = math.atan2(dx, dz)
+        self.cam.pitch = math.atan2(-dy, dist_xz)
+        self.cam.roll = 0.0
+
     # --------------- renderowanie ---------------
 
     def _tick(self):
@@ -231,7 +247,7 @@ class App:
             font=("Consolas", 9),
             text="WASD=ruch  Q/E=gora/dol  "
                  "Strzalki=obrot  Z/X=przechylenie  "
-                 "+/-=zoom  R=reset",
+                 "+/-=zoom  R=reset  L=POV swiatla",
         )
 
 
