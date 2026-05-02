@@ -1,6 +1,6 @@
 """Modele 3D - wielosciany, siatka podlogi, osie."""
 from algebra import vec3_sub, vec3_dot, vec3_cross, vec3_normalize
-
+import math
 
 class Mesh:
     """Wieloscian: wierzcholki + krawedzie + sciany (faces)."""
@@ -100,3 +100,29 @@ def make_axes(length=15):
         Mesh([[0, 0, 0], [0, length, 0]], [(0, 1)], "#44ff44"),
         Mesh([[0, 0, 0], [0, 0, length]], [(0, 1)], "#4444ff"),
     ]
+
+def make_sphere(cx, cy, cz, radius, stacks=8, slices=8, color="cyan"):
+    verts = []
+    normals = []  # normalne per-wierzcholek (kierunek od srodka sfery)
+    for i in range(stacks + 1):
+        phi = math.pi * i / stacks          # 0 .. π
+        for j in range(slices):
+            theta = 2 * math.pi * j / slices  # 0 .. 2π
+            nx = math.sin(phi) * math.cos(theta)
+            ny = math.cos(phi)
+            nz = math.sin(phi) * math.sin(theta)
+            verts.append([cx + radius * nx, cy + radius * ny, cz + radius * nz])
+            # normals.append([nx, ny, nz])  # juz znormalizowana
+    edges = []
+    faces = []
+    for i in range(stacks):
+        for j in range(slices):
+            a = i * slices + j
+            b = i * slices + (j + 1) % slices
+            c = (i + 1) * slices + (j + 1) % slices
+            d = (i + 1) * slices + j
+            edges += [(a, b), (a, d)]
+            faces.append([c, d, a, b])
+    return Mesh(verts, edges, color, faces,
+                #  normals
+                 )

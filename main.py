@@ -3,7 +3,7 @@ import tkinter as tk
 import math
 
 from algebra import mat4_vec
-from modele import make_cube, make_pyramid, make_octahedron, make_grid, make_axes
+from modele import make_cube, make_pyramid, make_octahedron, make_grid, make_axes, make_sphere
 from bsp import build_bsp_tree, traverse_bsp, meshes_to_polygons
 from oswietlenie import PointLight, Material, phong_shading, hex_to_float, polygon_center
 from kamera import Camera
@@ -49,6 +49,7 @@ class App:
         # Siatki bez scian (grid, osie) - rysowane jako wireframe
         self.wireframe_meshes = [m for m in self.scene_meshes if not m.faces]
 
+        self.stipple_on = False
         self.keys = set()
         self.root.bind("<KeyPress>",   lambda e: self.keys.add(e.keysym.lower()))
         self.root.bind("<KeyRelease>", lambda e: self.keys.discard(e.keysym.lower()))
@@ -67,6 +68,7 @@ class App:
             make_pyramid(1, -1.5, 8, 3, 2, "#ff88aa"),
             make_octahedron(3, 1.5, 5, 1.2, "#ff6644"),
             make_grid(-1.5, 10, 1, "#333333"),
+            make_sphere(0, 2, -10, 1, 32, 30, "#00ffffp")
         ]
         meshes += make_axes()
         return meshes
@@ -117,6 +119,11 @@ class App:
         if 'l' in self.keys:
             self._set_camera_to_light()
             self.keys.discard('l')
+        
+        # Toggle stipple (przezroczystosc)
+        if 't' in self.keys:
+            self.stipple_on = not self.stipple_on
+            self.keys.discard('t')
 
     def _set_camera_to_light(self):
         """Ustaw kamere na pozycji swiatla, patrzac w strone srodka sceny."""
@@ -215,6 +222,7 @@ class App:
                 fill=fill_color,
                 outline="",
                 width=0,
+                stipple="gray50" if self.stipple_on else "",
             )
 
         # --- 3. Marker pozycji swiatla (zolty krzyzyk) ---
@@ -238,6 +246,7 @@ class App:
             f"Roll: {math.degrees(c.roll):.0f} deg   "
             f"FOV: {c.fov:.0f} deg"
         )
+        stipple_label = "[ON]" if self.stipple_on else "[OFF]"
         cv.create_text(
             10, 10, anchor="nw", fill="white",
             font=("Consolas", 10), text=info,
@@ -245,9 +254,10 @@ class App:
         cv.create_text(
             10, 28, anchor="nw", fill="#888888",
             font=("Consolas", 9),
-            text="WASD=ruch  Q/E=gora/dol  "
-                 "Strzalki=obrot  Z/X=przechylenie  "
-                 "+/-=zoom  R=reset  L=POV swiatla",
+            text=f"WASD=ruch  Q/E=gora/dol  "
+                 f"Strzalki=obrot  Z/X=przechylenie  "
+                 f"+/-=zoom  R=reset  L=POV swiatla  "
+                 f"T = stipple {stipple_label}"
         )
 
 
