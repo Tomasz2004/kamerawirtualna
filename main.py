@@ -125,6 +125,14 @@ class App:
             self.stipple_on = not self.stipple_on
             self.keys.discard('t')
 
+        # Poruszanie punktem swiatla (YUI / HJK)
+        if 'y' in self.keys: self.light.position[1] += m  # up
+        if 'h' in self.keys: self.light.position[0] -= m  # left
+        if 'u' in self.keys: self.light.position[2] -= m  # forward
+        if 'j' in self.keys: self.light.position[2] += m  # backward
+        if 'i' in self.keys: self.light.position[1] -= m  # down
+        if 'k' in self.keys: self.light.position[0] += m  # right
+
     def _set_camera_to_light(self):
         """Ustaw kamere na pozycji swiatla, patrzac w strone srodka sceny."""
         lp = self.light.position
@@ -257,7 +265,8 @@ class App:
             text=f"WASD=ruch  Q/E=gora/dol  "
                  f"Strzalki=obrot  Z/X=przechylenie  "
                  f"+/-=zoom  R=reset  L=POV swiatla  "
-                 f"T = stipple {stipple_label}"
+                 f"T=stipple {stipple_label}\n"
+                 f"YUI/HJK=ruch swiatla"
         )
 
 
