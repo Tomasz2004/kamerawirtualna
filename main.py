@@ -33,13 +33,9 @@ class App:
             color=(1.0, 1.0, 0.95),
             intensity=1.0
         )
-        # Material powierzchni (wspolny dla wszystkich obiektow)
-        self.material = Material(
-            ambient=0.15,
-            diffuse=0.7,
-            specular=0.4,
-            shininess=32
-        )
+
+        # Standardowy domyslny material dla ulatwienia
+        self.default_material = Material(ambient=0.15, diffuse=0.7, specular=0.4, shininess=32)
 
         # Budujemy drzewo BSP ze scian (faces) obiektow
         solid_meshes = [m for m in self.scene_meshes if m.faces]
@@ -68,8 +64,35 @@ class App:
             make_pyramid(1, -1.5, 8, 3, 2, "#ff88aa"),
             make_octahedron(3, 1.5, 5, 1.2, "#ff6644"),
             make_grid(-1.5, 10, 1, "#333333"),
-            make_sphere(0, 2, -10, 1, 32, 30, "#00ffffp")
         ]
+        
+        # Kulki z roznymi materialami - 6 roznych powierzchni
+        mat_miedz   = Material(ambient=0.19, diffuse=0.7, specular=0.8, shininess=50)
+        mat_guma    = Material(ambient=0.05, diffuse=0.9, specular=0.1, shininess=5)
+        mat_szklo   = Material(ambient=0.05, diffuse=0.2, specular=1.5, shininess=200)
+        mat_plastik = Material(ambient=0.1,  diffuse=0.6, specular=0.9, shininess=64)
+        mat_zloto   = Material(ambient=0.25, diffuse=0.6, specular=1.2, shininess=100)
+        mat_mat     = Material(ambient=0.2,  diffuse=0.8, specular=0.0, shininess=1)
+
+        sphere1 = make_sphere(-7.5, 1.5, -5, 1.5, 8, 6, "#b87333")  # miedz
+        sphere1.material = mat_miedz
+
+        sphere2 = make_sphere(-4.5, 1.5, -5, 1.5, 8, 6, "#333333")  # guma
+        sphere2.material = mat_guma
+
+        sphere3 = make_sphere(-1.5, 1.5, -5, 1.5, 8, 6, "#aaeeff")  # szklo
+        sphere3.material = mat_szklo
+
+        sphere4 = make_sphere(1.5, 1.5, -5, 1.5, 8, 6, "#cc2222")   # plastik
+        sphere4.material = mat_plastik
+
+        sphere5 = make_sphere(4.5, 1.5, -5, 1.5, 8, 6, "#ffd700")   # zloto
+        sphere5.material = mat_zloto
+
+        sphere6 = make_sphere(7.5, 1.5, -5, 1.5, 8, 6, "#888888")   # mat
+        sphere6.material = mat_mat
+
+        meshes.extend([sphere1, sphere2, sphere3, sphere4, sphere5, sphere6])
         meshes += make_axes()
         return meshes
 
@@ -219,9 +242,12 @@ class App:
             # Oblicz kolor wg modelu Phonga
             base_color = hex_to_float(poly.color)
             center = polygon_center(poly)
+            # Wybierz material (przypisany do wielokata lub domyslny)
+            poly_mat = getattr(poly, 'material', None) or self.default_material
+            
             lit_rgb = phong_shading(
                 poly.normal, center, cam_pos,
-                self.light, self.material, base_color
+                self.light, poly_mat, base_color
             )
             fill_color = f"#{lit_rgb[0]:02x}{lit_rgb[1]:02x}{lit_rgb[2]:02x}"
 

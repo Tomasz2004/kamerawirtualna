@@ -12,9 +12,10 @@ SPANNING = 2
 
 class Polygon:
     """Wielokat 3D z wyliczona normalna i plaszczyzna (do BSP)."""
-    def __init__(self, vertices, color="white"):
+    def __init__(self, vertices, color="white", material=None):
         self.vertices = vertices  # [[x, y, z], ...] - min. 3 punkty
         self.color = color
+        self.material = material
         # Wyznacz normalna i odleglosc d plaszczyzny (rownanie: N*P + d = 0)
         self.normal = [0, 0, 0]
         self.d = 0.0
@@ -92,12 +93,12 @@ def split_polygon(splitter_normal, splitter_d, poly):
     front_poly = None
     back_poly = None
     if len(front_verts) >= 3:
-        front_poly = Polygon(front_verts, poly.color)
+        front_poly = Polygon(front_verts, poly.color, getattr(poly, 'material', None))
         # Zachowaj oryginalna normalna (nie przeliczaj z nowych wierzcholkow)
         front_poly.normal = list(poly.normal)
         front_poly.d = poly.d
     if len(back_verts) >= 3:
-        back_poly = Polygon(back_verts, poly.color)
+        back_poly = Polygon(back_verts, poly.color, getattr(poly, 'material', None))
         back_poly.normal = list(poly.normal)
         back_poly.d = poly.d
     return front_poly, back_poly
@@ -172,5 +173,5 @@ def meshes_to_polygons(meshes):
     for mesh in meshes:
         for face in mesh.faces:
             verts = [list(mesh.vertices[i]) for i in face]
-            polygons.append(Polygon(verts, mesh.color))
+            polygons.append(Polygon(verts, mesh.color, getattr(mesh, 'material', None)))
     return polygons

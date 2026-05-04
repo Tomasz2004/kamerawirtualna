@@ -4,11 +4,12 @@ import math
 
 class Mesh:
     """Wieloscian: wierzcholki + krawedzie + sciany (faces)."""
-    def __init__(self, vertices, edges, color="white", faces=None):
+    def __init__(self, vertices, edges, color="white", faces=None, material=None):
         self.vertices = vertices   # [[x, y, z], ...]
         self.edges = edges         # [(i, j), ...]
         self.faces = faces or []   # [[i, j, k, ...], ...] - indeksy wierzcholkow
         self.color = color
+        self.material = material
 
 
 def make_cube(cx, cy, cz, size, color="white"):
